@@ -8,13 +8,19 @@ export const LANE_POSITIONS: Record<Lane, number> = {
 
 export const PLAYER_Y = 0.6;
 export const GROUND_Y = -0.5;
+
 export const PLAYER_RADIUS = 0.55;
-export const OBSTACLE_RADIUS = 0.75;
-export const JUMP_FORCE = 8.5;
-export const GRAVITY = 22;
+export const COIN_RADIUS = 0.35;
+
 export const BASE_SPEED = 10;
-export const MAX_SPEED = 28;
-export const SPEED_RAMP = 0.35;
-export const SPAWN_INTERVAL = 1.1;
-export const DESPAWN_Z = 6;
+export const MAX_SPEED = 32;
+export const SPEED_RAMP = 0.18;
+
+export const GRAVITY = 18;
+export const JUMP_FORCE = 10.25;
+
+export const OBSTACLE_SPAWN_INTERVAL = 1.05;
+export const COIN_SPAWN_INTERVAL = 0.72;
+
 export const SPAWN_Z = -45;
+export const DESPAWN_Z = 10;

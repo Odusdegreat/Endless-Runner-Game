@@ -10,6 +10,19 @@ body,
 body {
   margin: 0;
   overflow: hidden;
-  background: #0a0a0a;
+  background: #020617;
   font-family: Inter, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
 }
