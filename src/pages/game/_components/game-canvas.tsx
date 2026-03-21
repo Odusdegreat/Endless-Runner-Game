@@ -1,5 +1,8 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Environment, PerspectiveCamera } from "@react-three/drei";
+import { useRef } from "react";
+import { MathUtils } from "three";
+import type { PerspectiveCamera as PerspectiveCameraType } from "three";
 
 import type {
   CoinType,
@@ -26,6 +29,7 @@ type GameCanvasProps = {
   player_y: number;
   obstacles: ObstacleType[];
   coin_items: CoinType[];
+  speed: number;
   on_tick: (delta: number) => void;
   on_collide: () => void;
   on_collect_coin: (coin_id: number) => void;
@@ -43,12 +47,51 @@ function get_obstacle_height(kind: ObstacleType["kind"]) {
   return 1.8;
 }
 
+function CameraRig({
+  game_state,
+  player_lane,
+  player_y,
+}: Pick<GameCanvasProps, "game_state" | "player_lane" | "player_y">) {
+  const camera_ref = useRef<PerspectiveCameraType>(null);
+
+  useFrame((state, delta) => {
+    const camera = camera_ref.current;
+    if (!camera) return;
+
+    const lane_x = LANE_POSITIONS[player_lane];
+    const bob =
+      game_state === "playing" ? Math.sin(state.clock.elapsedTime * 2.2) * 0.12 : 0;
+    const sway =
+      game_state === "playing" ? Math.sin(state.clock.elapsedTime * 1.5) * 0.18 : 0;
+
+    const target_x = lane_x * 0.42;
+    const target_y = 5.8 + (player_y - PLAYER_Y) * 0.35 + bob;
+    const target_z = 10.2 + sway;
+
+    camera.position.x = MathUtils.lerp(camera.position.x, target_x, delta * 3.5);
+    camera.position.y = MathUtils.lerp(camera.position.y, target_y, delta * 3);
+    camera.position.z = MathUtils.lerp(camera.position.z, target_z, delta * 2.6);
+
+    const look_x = lane_x * 0.45;
+    const look_y = 1.5 + (player_y - PLAYER_Y) * 0.45;
+    camera.lookAt(look_x, look_y, -6);
+    camera.rotation.z = MathUtils.lerp(
+      camera.rotation.z,
+      -lane_x * 0.02,
+      delta * 2.5,
+    );
+  });
+
+  return <PerspectiveCamera ref={camera_ref} makeDefault position={[0, 6, 10]} fov={50} />;
+}
+
 function Scene({
   game_state,
   player_lane,
   player_y,
   obstacles,
   coin_items,
+  speed,
   on_tick,
   on_collide,
   on_collect_coin,
@@ -95,15 +138,30 @@ function Scene({
       <color attach="background" args={[GAME_THEME.scene.sky]} />
       <fog attach="fog" args={[GAME_THEME.scene.fog, 20, 64]} />
 
-      <ambientLight intensity={1.55} />
+      <ambientLight intensity={1.7} />
       <directionalLight position={[6, 12, 8]} intensity={2.5} castShadow />
+      <pointLight
+        position={[0, 6, 6]}
+        intensity={game_state === "playing" ? 10 : 7.5}
+        distance={28}
+        color={GAME_THEME.scene.playerTrimEmissive}
+      />
 
-      <PerspectiveCamera makeDefault position={[0, 6, 10]} fov={50} />
+      <CameraRig
+        game_state={game_state}
+        player_lane={player_lane}
+        player_y={player_y}
+      />
       <Environment preset="sunset" />
 
       <SkyDecor />
-      <Ground />
-      <Player lane={player_lane} y={player_y} />
+      <Ground speed={speed} />
+      <Player
+        lane={player_lane}
+        y={player_y}
+        game_state={game_state}
+        speed={speed}
+      />
 
       {obstacles.map((obstacle) => (
         <Obstacle
@@ -111,6 +169,7 @@ function Scene({
           lane={obstacle.lane}
           z={obstacle.z}
           kind={obstacle.kind}
+          speed={speed}
         />
       ))}
 

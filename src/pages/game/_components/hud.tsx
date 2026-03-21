@@ -1,6 +1,7 @@
 import type { DifficultyLevel, GameState } from "@/interfaces/game.interface";
 import { format_score } from "@/lib/game.utils";
 import { GAME_THEME } from "@/lib/theme";
+import SettingsPanel from "./settings-panel";
 
 type HudProps = {
   game_state: GameState;
@@ -83,206 +84,175 @@ export default function Hud({
   return (
     <>
       <div className="pointer-events-none absolute inset-x-0 top-0 z-20 p-4 md:p-5">
-        <div className="mx-auto flex w-full max-w-7xl items-start justify-between gap-4">
-          <div className="pointer-events-auto flex flex-col gap-3">
-            <div
-              className="rounded-3xl border px-4 py-3 shadow-2xl backdrop-blur-xl"
-              style={panel_style}
-            >
-              <p
-                className="text-[11px] uppercase tracking-[0.28em]"
-                style={text_soft_style}
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-[260px_1fr_260px] md:items-start">
+            <div className="pointer-events-auto flex flex-col gap-3 md:col-start-1">
+              <div
+                className="panel-reveal rounded-[22px] border px-4 py-3 shadow-2xl backdrop-blur-xl"
+                style={panel_style}
               >
-                Endless Runner
-              </p>
-              <div className="mt-1 flex items-end gap-3">
-                <p className="text-3xl font-black leading-none">
-                  {format_score(score)}
+                <p
+                  className="text-[10px] uppercase tracking-[0.28em]"
+                  style={text_soft_style}
+                >
+                  Endless Runner
                 </p>
-                <span className="pb-1 text-xs" style={text_soft_style}>
-                  score
-                </span>
+                <div className="mt-1 flex items-end gap-3">
+                  <p className="text-[2rem] font-black leading-none">
+                    {format_score(score)}
+                  </p>
+                  <span className="pb-1 text-xs" style={text_soft_style}>
+                    score
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div
+                  className="panel-reveal rounded-[18px] border px-4 py-3 shadow-xl backdrop-blur-xl"
+                  style={muted_panel_style}
+                >
+                  <p
+                    className="text-[10px] uppercase tracking-[0.22em]"
+                    style={text_faint_style}
+                  >
+                    Coins
+                  </p>
+                  <p className="mt-1 text-xl font-bold">{coins}</p>
+                </div>
+
+                <div
+                  className="panel-reveal rounded-[18px] border px-4 py-3 shadow-xl backdrop-blur-xl"
+                  style={muted_panel_style}
+                >
+                  <p
+                    className="text-[10px] uppercase tracking-[0.22em]"
+                    style={text_faint_style}
+                  >
+                    Speed
+                  </p>
+                  <p className="mt-1 text-xl font-bold">{speed.toFixed(1)}</p>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div
-                className="rounded-[20px] border px-4 py-3 shadow-xl backdrop-blur-xl"
-                style={muted_panel_style}
-              >
-                <p
-                  className="text-[11px] uppercase tracking-[0.22em]"
-                  style={text_faint_style}
-                >
-                  Coins
-                </p>
-                <p className="mt-1 text-2xl font-bold">{coins}</p>
-              </div>
+            <div className="hidden md:block" />
 
-              <div
-                className="rounded-[20px] border px-4 py-3 shadow-xl backdrop-blur-xl"
-                style={muted_panel_style}
-              >
-                <p
-                  className="text-[11px] uppercase tracking-[0.22em]"
-                  style={text_faint_style}
-                >
-                  Speed
-                </p>
-                <p className="mt-1 text-2xl font-bold">{speed.toFixed(1)}</p>
-              </div>
-            </div>
-          </div>
+            <div className="pointer-events-auto col-span-2 flex flex-col gap-3 md:col-span-1 md:col-start-3 md:items-end">
+              <div className="flex justify-end gap-2">
+                {game_state === "playing" && (
+                  <button
+                    onClick={on_pause_toggle}
+                    className="panel-reveal rounded-[18px] border px-4 py-2 text-sm font-semibold shadow-lg backdrop-blur-xl transition hover:-translate-y-0.5"
+                    style={secondary_button_style}
+                  >
+                    Pause
+                  </button>
+                )}
 
-          <div className="pointer-events-auto flex flex-col items-end gap-3">
-            <div className="flex gap-2">
-              {game_state === "playing" && (
                 <button
-                  onClick={on_pause_toggle}
-                  className="rounded-2xl border px-4 py-2 text-sm font-semibold shadow-lg backdrop-blur-xl transition"
+                  onClick={on_toggle_settings}
+                  className="panel-reveal rounded-[18px] border px-4 py-2 text-sm font-semibold shadow-lg backdrop-blur-xl transition hover:-translate-y-0.5"
                   style={secondary_button_style}
                 >
-                  Pause
+                  Settings
                 </button>
-              )}
-
-              <button
-                onClick={on_toggle_settings}
-                className="rounded-2xl border px-4 py-2 text-sm font-semibold shadow-lg backdrop-blur-xl transition"
-                style={secondary_button_style}
-              >
-                Settings
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div
-                className="rounded-[20px] border px-4 py-3 text-right shadow-xl backdrop-blur-xl"
-                style={muted_panel_style}
-              >
-                <p
-                  className="text-[11px] uppercase tracking-[0.22em]"
-                  style={text_faint_style}
-                >
-                  Best Score
-                </p>
-                <p className="mt-1 text-2xl font-bold">
-                  {format_score(best_score)}
-                </p>
               </div>
 
-              <div
-                className="rounded-[20px] border px-4 py-3 text-right shadow-xl backdrop-blur-xl"
-                style={muted_panel_style}
-              >
-                <p
-                  className="text-[11px] uppercase tracking-[0.22em]"
-                  style={text_faint_style}
+              <div className="grid w-full grid-cols-2 gap-3 md:max-w-[244px]">
+                <div
+                  className="panel-reveal rounded-[18px] border px-4 py-3 text-right shadow-xl backdrop-blur-xl"
+                  style={muted_panel_style}
                 >
-                  Best Coins
-                </p>
-                <p className="mt-1 text-2xl font-bold">{best_coins}</p>
+                  <p
+                    className="text-[10px] uppercase tracking-[0.22em]"
+                    style={text_faint_style}
+                  >
+                    Best Score
+                  </p>
+                  <p className="mt-1 text-xl font-bold">
+                    {format_score(best_score)}
+                  </p>
+                </div>
+
+                <div
+                  className="panel-reveal rounded-[18px] border px-4 py-3 text-right shadow-xl backdrop-blur-xl"
+                  style={muted_panel_style}
+                >
+                  <p
+                    className="text-[10px] uppercase tracking-[0.22em]"
+                    style={text_faint_style}
+                  >
+                    Best Coins
+                  </p>
+                  <p className="mt-1 text-xl font-bold">{best_coins}</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="mx-auto mt-4 max-w-7xl">
-          <div className="flex items-center justify-between gap-3">
-            <div
-              className="rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]"
-              style={difficulty_badge_style(difficulty)}
-            >
-              {difficulty}
-            </div>
-
-            <div
-              className="text-xs uppercase tracking-[0.2em]"
-              style={{ color: GAME_THEME.ui.textMuted }}
-            >
-              Run Progress
-            </div>
-          </div>
-
+      <div className="pointer-events-none absolute inset-x-0 bottom-4 z-20 px-4 md:bottom-5">
+        <div className="mx-auto max-w-xl">
           <div
-            className="mt-2 h-3 overflow-hidden rounded-full border backdrop-blur"
-            style={{
-              borderColor: GAME_THEME.ui.borderFaint,
-              backgroundColor: GAME_THEME.ui.buttonGhost,
-            }}
+            className="panel-reveal pointer-events-auto rounded-[22px] border px-4 py-3 shadow-2xl backdrop-blur-xl"
+            style={muted_panel_style}
           >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div
+                  className="rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]"
+                  style={difficulty_badge_style(difficulty)}
+                >
+                  {difficulty}
+                </div>
+                <div>
+                  <p
+                    className="text-[10px] uppercase tracking-[0.22em]"
+                    style={text_faint_style}
+                  >
+                    Run Progress
+                  </p>
+                  <p className="mt-0.5 text-sm font-semibold">
+                    {format_score(score)} / 500
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xl font-black">{Math.round(progress_percent)}%</p>
+            </div>
+
             <div
-              className="h-full rounded-full transition-all duration-300"
+              className="mt-3 relative h-3 overflow-hidden rounded-full border backdrop-blur"
               style={{
-                width: `${progress_percent}%`,
-                backgroundImage: GAME_THEME.ui.progressGradient,
+                borderColor: GAME_THEME.ui.borderFaint,
+                backgroundColor: GAME_THEME.ui.buttonGhost,
               }}
-            />
+            >
+              <div
+                className="absolute inset-y-[2px] left-[2px] rounded-full transition-all duration-500"
+                style={{
+                  width: `calc(${progress_percent}% - 4px)`,
+                  minWidth: progress_percent > 1 ? "18px" : "0px",
+                  backgroundImage: GAME_THEME.ui.progressGradient,
+                }}
+              />
+              <div className="progress-sheen" />
+              <div className="absolute inset-y-0 left-1/4 w-px bg-white/12" />
+              <div className="absolute inset-y-0 left-1/2 w-px bg-white/12" />
+              <div className="absolute inset-y-0 left-3/4 w-px bg-white/12" />
+            </div>
           </div>
         </div>
       </div>
 
       {show_settings && (
-        <div
-          className="absolute right-4 top-28 z-30 w-70 rounded-[28px] border p-4 shadow-2xl backdrop-blur-2xl md:right-5"
-          style={modal_strong_style}
-        >
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold">Settings</h3>
-            <button
-              onClick={on_toggle_settings}
-              className="rounded-xl px-3 py-1 text-sm"
-              style={{
-                backgroundColor: GAME_THEME.ui.buttonGhost,
-                color: GAME_THEME.ui.text,
-              }}
-            >
-              Close
-            </button>
-          </div>
-
-          <div
-            className="mt-4 flex items-center justify-between rounded-2xl px-4 py-3"
-            style={metric_card_style}
-          >
-            <div>
-              <p className="text-sm font-semibold">Sound</p>
-              <p className="text-xs" style={text_soft_style}>
-                UI toggle ready
-              </p>
-            </div>
-            <button
-              onClick={on_toggle_sound}
-              className="rounded-full px-4 py-2 text-sm font-semibold"
-              style={
-                sound_enabled
-                  ? {
-                      backgroundColor: GAME_THEME.ui.toggleOn,
-                      color: GAME_THEME.ui.toggleOnText,
-                    }
-                  : {
-                      backgroundColor: GAME_THEME.ui.buttonGhost,
-                      color: GAME_THEME.ui.text,
-                    }
-              }
-            >
-              {sound_enabled ? "On" : "Off"}
-            </button>
-          </div>
-
-          <div
-            className="mt-3 rounded-2xl px-4 py-3 text-sm"
-            style={{
-              ...metric_card_style,
-              color: GAME_THEME.ui.textMuted,
-            }}
-          >
-            A / D or Left / Right to move
-            <br />
-            W / Up / Space to jump
-            <br />P or Esc to pause
-          </div>
-        </div>
+        <SettingsPanel
+          sound_enabled={sound_enabled}
+          on_toggle_sound={on_toggle_sound}
+          on_toggle_settings={on_toggle_settings}
+        />
       )}
 
       {game_state === "idle" && (
@@ -291,7 +261,7 @@ export default function Hud({
           style={{ backgroundColor: GAME_THEME.ui.overlaySoft }}
         >
           <div
-            className="w-full max-w-155 overflow-hidden rounded-4xl border shadow-2xl backdrop-blur-2xl"
+            className="panel-reveal w-full max-w-155 overflow-hidden rounded-4xl border shadow-2xl backdrop-blur-2xl"
             style={modal_style}
           >
             <div
@@ -376,7 +346,7 @@ export default function Hud({
           style={{ backgroundColor: GAME_THEME.ui.overlayMid }}
         >
           <div
-            className="w-full max-w-md rounded-4xl border p-8 text-center shadow-2xl backdrop-blur-2xl"
+            className="panel-reveal w-full max-w-md rounded-4xl border p-8 text-center shadow-2xl backdrop-blur-2xl"
             style={modal_strong_style}
           >
             <p
@@ -419,7 +389,7 @@ export default function Hud({
           style={{ backgroundColor: GAME_THEME.ui.overlayStrong }}
         >
           <div
-            className="w-full max-w-140 overflow-hidden rounded-4xl border shadow-2xl backdrop-blur-2xl"
+            className="panel-reveal w-full max-w-140 overflow-hidden rounded-4xl border shadow-2xl backdrop-blur-2xl"
             style={modal_strong_style}
           >
             <div

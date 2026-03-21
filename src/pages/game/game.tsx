@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import useGameControls from "@/hooks/use-game-controls";
+import useGameAudio from "@/hooks/use-game-audio";
 import useLocalStorage from "@/hooks/use-local-storage";
 import type {
   CoinType,
@@ -64,6 +65,7 @@ export default function GamePage() {
     const next_speed = BASE_SPEED + score * SPEED_RAMP * 0.05;
     return Math.min(next_speed, MAX_SPEED);
   }, [score]);
+  const audio = useGameAudio(sound_enabled);
 
   const difficulty = useMemo(() => get_difficulty_label(score), [score]);
 
@@ -72,6 +74,7 @@ export default function GamePage() {
   }, [score]);
 
   const start_game = useCallback(() => {
+    void audio.play_start();
     set_player_lane(0);
     set_player_y(PLAYER_Y);
     set_score(0);
@@ -88,7 +91,7 @@ export default function GamePage() {
 
     set_game_state("playing");
     set_show_settings(false);
-  }, []);
+  }, [audio]);
 
   const restart_game = useCallback(() => {
     start_game();
@@ -96,34 +99,44 @@ export default function GamePage() {
 
   const pause_toggle = useCallback(() => {
     set_game_state((prev) => {
-      if (prev === "playing") return "paused";
-      if (prev === "paused") return "playing";
+      if (prev === "playing") {
+        void audio.play_pause_toggle(true);
+        return "paused";
+      }
+      if (prev === "paused") {
+        void audio.play_pause_toggle(false);
+        return "playing";
+      }
       return prev;
     });
-  }, []);
+  }, [audio]);
 
   const game_over = useCallback(() => {
+    void audio.play_game_over();
     set_game_state("game_over");
     set_best_score((prev) => Math.max(prev, score));
     set_best_coins((prev) => Math.max(prev, coins));
-  }, [coins, score, set_best_coins, set_best_score]);
+  }, [audio, coins, score, set_best_coins, set_best_score]);
 
   const move_left = useCallback(() => {
     if (game_state !== "playing") return;
+    void audio.play_lane_move();
     set_player_lane((prev) => (prev === 1 ? 0 : prev === 0 ? -1 : -1));
-  }, [game_state]);
+  }, [audio, game_state]);
 
   const move_right = useCallback(() => {
     if (game_state !== "playing") return;
+    void audio.play_lane_move();
     set_player_lane((prev) => (prev === -1 ? 0 : prev === 0 ? 1 : 1));
-  }, [game_state]);
+  }, [audio, game_state]);
 
   const jump = useCallback(() => {
     if (game_state !== "playing") return;
     if (player_y <= PLAYER_Y + 0.02) {
+      void audio.play_jump();
       jump_velocity_ref.current = JUMP_FORCE;
     }
-  }, [game_state, player_y]);
+  }, [audio, game_state, player_y]);
 
   useGameControls({
     game_state,
@@ -201,10 +214,11 @@ export default function GamePage() {
   );
 
   const collect_coin = useCallback((coin_id: number) => {
+    void audio.play_coin();
     set_coin_items((prev) => prev.filter((item) => item.id !== coin_id));
     set_coins((prev) => prev + 1);
     set_score((prev) => prev + 5);
-  }, []);
+  }, [audio]);
 
   return (
     <div
@@ -212,7 +226,7 @@ export default function GamePage() {
       style={{ backgroundColor: GAME_THEME.scene.shell }}
     >
       <div
-        className="absolute inset-0"
+        className="ambient-pulse absolute inset-0"
         style={{ backgroundImage: GAME_THEME.scene.shellOverlay }}
       />
 
@@ -222,6 +236,7 @@ export default function GamePage() {
         player_y={player_y}
         obstacles={obstacles}
         coin_items={coin_items}
+        speed={speed}
         on_tick={update_game}
         on_collide={game_over}
         on_collect_coin={collect_coin}
@@ -241,7 +256,10 @@ export default function GamePage() {
         on_start={start_game}
         on_restart={restart_game}
         on_pause_toggle={pause_toggle}
-        on_toggle_sound={() => set_sound_enabled((prev) => !prev)}
+        on_toggle_sound={() => {
+          void audio.unlock();
+          set_sound_enabled((prev) => !prev);
+        }}
         on_toggle_settings={() => set_show_settings((prev) => !prev)}
       />
 

@@ -26,3 +26,74 @@ button:focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.7);
   outline-offset: 2px;
 }
+
+@keyframes sheenSweep {
+  0% {
+    transform: translateX(-130%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.2;
+  }
+  60% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(260%);
+    opacity: 0;
+  }
+}
+
+@keyframes ambientPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.78;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes panelReveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ambient-pulse {
+  animation: ambientPulse 3.8s ease-in-out infinite;
+}
+
+.panel-reveal {
+  animation: panelReveal 480ms ease-out;
+}
+
+.progress-sheen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.progress-sheen::after {
+  content: "";
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  width: 24%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0)
+  );
+  filter: blur(2px);
+  animation: sheenSweep 2.9s ease-in-out infinite;
+}

@@ -1,7 +1,27 @@
+import { useMemo } from "react";
+
 import { GROUND_Y } from "@/lib/constants";
 import { GAME_THEME } from "@/lib/theme";
 
-export default function Ground() {
+type GroundProps = {
+  speed: number;
+};
+
+export default function Ground({ speed }: GroundProps) {
+  const roadside_props = useMemo(
+    () =>
+      Array.from({ length: 8 }, (_, index) => {
+        const side = index % 2 === 0 ? -1 : 1;
+        return {
+          key: index,
+          x: side * (6.5 + (index % 3) * 1.1),
+          z: -14 - index * 11,
+          scale: 1 + (index % 4) * 0.18,
+        };
+      }),
+    [],
+  );
+
   return (
     <group>
       <mesh
@@ -105,6 +125,31 @@ export default function Ground() {
           emissiveIntensity={0.4}
         />
       </mesh>
+
+      {roadside_props.map((prop) => (
+        <group key={prop.key} position={[prop.x, GROUND_Y + 0.15, prop.z]}>
+          <mesh castShadow position={[0, 0.55 * prop.scale, 0]}>
+            <boxGeometry args={[0.35, 1.1 * prop.scale, 0.35]} />
+            <meshStandardMaterial color={GAME_THEME.scene.pole} />
+          </mesh>
+          <mesh castShadow position={[0, 1.18 * prop.scale, 0]}>
+            <coneGeometry args={[0.85, 1.5 * prop.scale, 8]} />
+            <meshStandardMaterial color={GAME_THEME.scene.verge} />
+          </mesh>
+          <mesh
+            castShadow
+            position={[0, 0.42 * prop.scale, 0]}
+            rotation={[0, speed * 0.01, 0]}
+          >
+            <torusGeometry args={[0.55, 0.04, 10, 24]} />
+            <meshStandardMaterial
+              color={GAME_THEME.scene.playerTrim}
+              emissive={GAME_THEME.scene.playerTrimEmissive}
+              emissiveIntensity={0.25}
+            />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
